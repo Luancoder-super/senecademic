@@ -23,7 +23,7 @@ function parsePasted(text){const lines=text.replace(/\r/g,"").split(/\n/).map(x=
 $("pasteToggle").onclick=()=>$("pasteBox").classList.toggle("hidden");
 $("pasteImport").onclick=()=>{let parsed=parsePasted($("pasteArea").value);if(!parsed.length){alert("Chưa đọc được từ nào. Kiểm tra định dạng chữ Hán / pinyin — nghĩa nhé.");return}let seen=new Set(words.map(w=>w.hanzi)),fresh=parsed.filter(w=>!seen.has(w.hanzi));words.push(...fresh);idx=Math.max(0,words.length-fresh.length);flipped=false;save();$("pasteArea").value="";$("pasteBox").classList.add("hidden");alert("Đã thêm "+fresh.length+" mục. Bỏ qua "+(parsed.length-fresh.length)+" mục trùng.")};
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));["vocab","patterns","reading"].forEach(id=>$(id).classList.toggle("hidden",id!==b.dataset.tab))});
-$("add").onclick=()=>{let hanzi=$("hanzi").value.trim(),meaning=$("meaning").value.trim();if(!hanzi||!meaning){alert("Nhập chữ Hán và nghĩa.");return}words.push({hanzi,pinyin:$("pinyin").value.trim(),meaning,example:$("example").value.trim(),unit:$("unit").value.trim(),known:false});idx=words.length-1;["hanzi","pinyin","meaning","example","unit"].forEach(id=>$(id).value="");flipped=false;save()};
+
 $("flash").onclick=flip;$("flip").onclick=flip;$("next").onclick=()=>{let deck=activeWords();if(deck.length){idx=(idx+1)%deck.length;flipped=false;render()}};$("prev").onclick=()=>{let deck=activeWords();if(deck.length){idx=(idx-1+deck.length)%deck.length;flipped=false;render()}};
 function recordWord(known){let deck=activeWords(),w=deck[idx];if(!w)return;w.known=known;save();let updated=activeWords();if(idx>=updated.length)idx=0;flipped=false;render()}
 $("markKnown").onclick=()=>recordWord(true);$("markUnknown").onclick=()=>recordWord(false);
@@ -31,7 +31,6 @@ $("shuffle").onclick=()=>{for(let i=words.length-1;i>0;i--){let j=Math.floor(Mat
 $("focusUnknown").onclick=()=>{focusUnknown=!focusUnknown;idx=0;flipped=false;render()};
 $("listToggle").onclick=()=>{let hidden=$("wordList").classList.toggle("hidden");$("listToggle").textContent=hidden?"Hiển thị danh sách từ vựng ↓":"Ẩn danh sách từ vựng ↑"};
 $("rows").onclick=e=>{let k=e.target.dataset.known,d=e.target.dataset.del;if(k!==undefined){words[+k].known=!words[+k].known;save()}if(d!==undefined&&confirm("Xóa từ này?")){words.splice(+d,1);save()}};
-$("importBtn").onclick=()=>$("file").click();$("file").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let lines=String(r.result).replace(/^\uFEFF/,"").split(/\r?\n/).filter(Boolean),start=/hanzi/i.test(lines[0])?1:0,added=0;for(let line of lines.slice(start)){let a=line.split(",").map(x=>x.trim().replace(/^"|"$/g,""));if(a.length>=3&&a[0]&&a[2]){words.push({hanzi:a[0],pinyin:a[1]||"",meaning:a[2],example:a[3]||"",unit:a[4]||"",known:false});added++}}save();alert("Đã nhập "+added+" từ.")};r.readAsText(f,"UTF-8");e.target.value=""};
-$("exportBtn").onclick=()=>{let csv=["Hanzi,Pinyin,Meaning,Example,Unit,Known",...words.map(w=>[w.hanzi,w.pinyin,w.meaning,w.example,w.unit,w.known?"1":"0"].map(v=>'"'+String(v||"").replace(/"/g,'""')+'"').join(","))].join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));a.download="senecademic-chinese-vocabulary.csv";a.click();URL.revokeObjectURL(a.href)};
+
 render();
 </script></body></html>
